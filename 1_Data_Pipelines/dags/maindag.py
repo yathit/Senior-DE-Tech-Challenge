@@ -9,7 +9,7 @@ import logging
 from airflow.decorators import task
 from airflow.sensors.filesystem import FileSensor
 from airflow.utils.task_group import TaskGroup
-from utils import extraction, transformation, load
+from utils import extraction, transformation, load, delete_file
 import constants as c
 
 
@@ -19,17 +19,18 @@ def process(input_file):
     :param input_file:
     :return:
     """
-    fs = FileSensor(task_id='wait_for_' + input_file.replace('.', '_'), filepath=input_file)
+    fs = FileSensor(task_id='wait_for_file', filepath=input_file)
     df = extraction(filename=fs.filepath)
-    fs >> df
-    transform_df = transformation(data_frame=df)
-    load(transformed_df=transform_df, file_name=input_file)
+    tf = transformation(data_frame=df)
+    loader = load(transformed_df=tf, file_name=fs.filepath)
+    del_file = delete_file(fs.filepath)
+    fs >> df >> tf >> loader >> del_file
 
 
 dag = DAG(
-    dag_id='Daily_Applicant_Transaction',
-    description='Validate daily successful applications',
-    schedule_interval='0 1 * * *',
+    dag_id='Hourly_Applicant_Transaction',
+    description='Validate hourly successful applications',
+    schedule_interval=None,  # '0 * * * *',
     start_date=datetime(2023, 4, 16),
     catchup=False
     )

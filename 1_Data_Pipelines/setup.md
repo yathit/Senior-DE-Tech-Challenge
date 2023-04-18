@@ -36,3 +36,8 @@ source .env
 
 Then, follow Airflow docker compose installation.
 
+### Operation
+
+Run the dockers
+
+    docker compose up -d

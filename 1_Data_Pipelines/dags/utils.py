@@ -1,4 +1,7 @@
 import logging
+import os
+import re
+
 import constants as c
 import pandas as pd
 import numpy as np
@@ -30,8 +33,13 @@ def split_name(input_name):
     :param input_name: name
     :return: first and last name
     """
-    name = [n.strip() for n in input_name.split(" ") if n.strip() not in c.name_prefix_list]
-    return [name[0], name[1]] if len(name) >= 2 else ["", " "]
+    names = re.compile(r'\s+').split(input_name)
+    if names[0] in c.name_prefix_list:
+        del names[0]
+    if names[-1] in c.name_suffix_list:
+        del names[-1]
+
+    return [names[0], names[-1]] if len(names) >= 2 else ["", input_name.strip()]
 
 
 def format_date(col):
@@ -42,6 +50,25 @@ def format_date(col):
     # To remove errors in the columns like strings or numbers
     col = pd.to_datetime(col, errors="coerce")
     return col
+
+
+def is_valid_phone_no(phone_no: str):
+    """
+    Application mobile number is 8 digits
+    :param phone_no: phone number
+    :return:
+    """
+    d = len(re.compile(r'\d').findall(phone_no))
+    return d == 8
+
+
+def is_valid_email(email: str):
+    """
+    Applicant has a valid email (email ends with @emailprovider.com or @emailprovider.net)
+    :param email: email
+    :return:
+    """
+    return email.split(".")[-1] in c.valid_email_list
 
 
 def shahash(dob):
@@ -76,7 +103,7 @@ def transformation(data_frame):
     df.mobile_no = df.mobile_no.str.replace(" ", "")
 
     # validate mobile number has 8 digit
-    df["successful_applicant"] = (df.mobile_no.astype(int) > c.min_range) & (df.mobile_no.astype(int) < c.max_range)
+    df["successful_applicant"] = is_valid_phone_no(df.mobile_no)
 
     logging.info("Applicants with Valid mobile number: {}".format((df[df["successful_applicant"]] == True).count()[1]))
 
@@ -88,10 +115,8 @@ def transformation(data_frame):
 
     logging.info("Applicants with Valid Age limit: {}".format((df[df["successful_applicant"]] == True).count()[1]))
 
-    # Applicant with valid Email AddressREADME.md
-
-    df["successful_applicant"] = (df.successful_applicant & (df["email"].str.split(".")
-                                                             .str[-1].isin(c.valid_email_list)))
+    # Applicant with valid Email Address
+    df["successful_applicant"] = (df.successful_applicant & is_valid_email(df['email']))
 
     logging.info("Applicants with Valid Email:{}".format((df[df["successful_applicant"]] == True).count()[1]))
 
@@ -129,3 +154,14 @@ def load(transformed_df, file_name):
 
     failed_file = "/".join([failed_path, file_name])
     failed_df.to_csv(failed_file, index=False)
+
+
+@task
+def delete_file(file_name):
+    """
+    Delete the file after successful operation
+    :param file_name: file name to be deleted
+    :return:
+    """
+    if os.path.isfile(file_name):
+        os.remove(file_name, )
