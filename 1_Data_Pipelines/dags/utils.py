@@ -20,9 +20,8 @@ def extraction(filename):
     :param filename: application dataset
     :return: json formatted raw data
     """
-    file = "".join([c.input_path, filename])
-    logging.info("Processing for File, {} ".format(file))
-    df = pd.read_csv(file)
+    logging.info("Processing for File, {} ".format(filename))
+    df = pd.read_csv(filename)
     df = df.to_json(orient="records")
     return json.loads(df)
 
@@ -103,7 +102,7 @@ def transformation(data_frame):
     df.mobile_no = df.mobile_no.str.replace(" ", "")
 
     # validate mobile number has 8 digit
-    df["successful_applicant"] = is_valid_phone_no(df.mobile_no)
+    df["successful_applicant"] = df.mobile_no.map(is_valid_phone_no)
 
     logging.info("Applicants with Valid mobile number: {}".format((df[df["successful_applicant"]] == True).count()[1]))
 
@@ -116,7 +115,7 @@ def transformation(data_frame):
     logging.info("Applicants with Valid Age limit: {}".format((df[df["successful_applicant"]] == True).count()[1]))
 
     # Applicant with valid Email Address
-    df["successful_applicant"] = (df.successful_applicant & is_valid_email(df['email']))
+    df["successful_applicant"] = (df.successful_applicant & df.email.map(is_valid_email))
 
     logging.info("Applicants with Valid Email:{}".format((df[df["successful_applicant"]] == True).count()[1]))
 
