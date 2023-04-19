@@ -1,0 +1,27 @@
+# Database
+
+---
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ecom
+      POSTGRES_PASSWORD: ecom
+      POSTGRES_DB: ecom
+    volumes:
+      - ecom-db-volume:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./init_scripts/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ecom"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+    ports:
+      - "5433:5432"
+
+volumes:
+  ecom-db-volume:
