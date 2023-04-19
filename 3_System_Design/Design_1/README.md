@@ -18,9 +18,9 @@ Create role for each departments
 create roles for each department
 
 ```postgresql
-create role logistics login password '*******';
-create role analytics login password '*******';
-create role sales login password '*******';
+create role logistics login password 'abcdef';
+create role analytics login password 'abcdef';
+create role sales login password 'abcdef';
 ```
 
 
