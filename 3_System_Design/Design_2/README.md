@@ -19,3 +19,5 @@ Image metadata is stored in new AWS service, Timestream. Underlying is Dynamo db
 Business Intelligence services offer two solution. Amazon QuickSight is used for frequent and no code analytics and dashboarding. For data scientist and expert analyst will used Jupyter Notebook power by Amazon Sagemaker. 
 
 For security, untrusted pubnlic users are heavily layers and defends by AWS WAF and authenticated by Cognito. For internal user, services are available via VPN (likely site-to-site VPN) for easier and high performance connection. 
+
+So far all services discussed are scalable and highly available. 
