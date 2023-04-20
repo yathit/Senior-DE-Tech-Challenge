@@ -20,7 +20,7 @@ Load them in dataframe and set the date period accordingly to go over Singapore 
 
 #### Death cases
 
-![](Charts/4_death.png)
+![](2_Deadth.png)
 
 #### Recovered cases
 
