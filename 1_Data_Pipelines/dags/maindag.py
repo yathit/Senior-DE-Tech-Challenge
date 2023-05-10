@@ -1,6 +1,6 @@
 """
 ETL Data Pipeline Assessment
-Author: MohanKumar Kannan
+Author:
 Date: 18-Mar-2023
 """
 from airflow import DAG
